@@ -1,0 +1,107 @@
+---
+slug: "distributed-cache"
+title: "High-Throughput Distributed Cache System"
+summary: "An ultra-low latency, distributed in-memory caching tier engineered with Go, consistent hashing, and Raft consensus handling 150k+ QPS with sub-5ms p99."
+coverImage: "/images/projects/distributed-cache.webp"
+role: "Lead Systems Architect & Core Developer"
+period: "2023 - 2024"
+teamSize: 5
+order: 1
+featured: true
+repoUrl: "https://github.com/example/distributed-cache"
+liveUrl: "https://cache-benchmarks.example.com"
+metrics:
+  - label: "Throughput"
+    value: "150k+ QPS"
+  - label: "Latency (p99)"
+    value: "< 4.8ms"
+  - label: "Hit Ratio"
+    value: "94.2%"
+  - label: "Infra Cost Reduction"
+    value: "42%"
+stack:
+  - "Go"
+  - "gRPC"
+  - "Redis"
+  - "Raft"
+  - "Prometheus"
+  - "Grafana"
+  - "Docker"
+  - "Kubernetes"
+---
+
+## Executive Overview
+
+As transactional volume expanded rapidly across our e-commerce platforms during flash-sale events, the downstream primary relational databases suffered severe connection pool exhaustion and read latency degradation. Existing Redis standalone clusters suffered from hot-key saturation and costly inter-region egress.
+
+We designed and implemented a bespoke distributed in-memory caching middleware in **Go** that acts as an intelligent sidecar proxy and distributed storage ring. The platform features dynamic consistent hashing, lease-based hot-key cache stampede prevention, and transparent peer replication.
+
+---
+
+## System Architecture
+
+The architecture partitions keys across dynamic virtual nodes on a consistent hash ring with bounded loads to eliminate single-node hotspots:
+
+```
+                  [ Client Applications ]
+                             │
+                      gRPC / Multiplexed
+                             ▼
+              ┌─────────────────────────────┐
+              │   L1 Local Process Cache    │ (Lock-free Ring Buffer / TinyLFU)
+              └──────────────┬──────────────┘
+                             │ (Cache Miss)
+                             ▼
+              ┌─────────────────────────────┐
+              │ Consistent Hash Router      │ (MurmurHash3 + Bounded V-Nodes)
+              └──────────────┬──────────────┘
+                             │
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+     ┌─────────────┐  ┌─────────────┐  ┌─────────────┐
+     │ Cache Node A│  │ Cache Node B│  │ Cache Node C│
+     │  (Primary)  │  │  (Replica)  │  │  (Replica)  │
+     └─────────────┘  └─────────────┘  └─────────────┘
+```
+
+### Key Architectural Pillars
+
+1. **Two-Tiered Hybrid Storage:**
+   - **L1 In-Process Cache:** Utilizing zero-allocation TinyLFU eviction for ultra-hot read keys (< 0.2ms latency).
+   - **L2 Distributed Ring:** Interconnected Go nodes communicating over binary gRPC with custom protobuf envelopes.
+2. **Deterministic Consistent Hashing with Bounded Load:**
+   - Employs 256 virtual nodes per physical instance using Murmur3 hashing to distribute key space uniformly.
+   - Bounded load threshold ensures no single node handles more than `1.25 * average_load`.
+3. **Cache Stampede & Thundering Herd Defense:**
+   - Utilizes singleflight request deduplication combined with probabilistic early expiration (XFetch algorithm) to refresh keys in the background before hard TTL expiration.
+
+---
+
+## Technical Challenges & Solutions
+
+### 1. Eliminating GC Pauses in High-Throughput Memory Allocation
+Under 150,000 requests per second, standard Go runtime garbage collector cycles caused unacceptable latency spikes (p999 > 85ms).
+- **Solution:** Re-architected data storage into pre-allocated off-heap arena memory blocks. Key-value records are stored in continuous byte slices, circumventing Go GC scanning overhead entirely.
+- **Result:** Decreased maximum GC pause from 38ms to less than 1.1ms under sustained peak load.
+
+### 2. Reliable Peer Discovery & Failure Detection
+In dynamically auto-scaled Kubernetes pods, nodes frequently join or leave the ring.
+- **Solution:** Integrated an optimized SWIM gossip protocol variant with failure detectors. Node state transitions are propagated throughout a 60-node cluster in under 120ms without central coordinator bottlenecks.
+
+---
+
+## Key Performance Results
+
+| Metric | Prior Architecture | Distributed Cache Tier | Improvement |
+| :--- | :--- | :--- | :--- |
+| **Peak Throughput** | 28,000 QPS | 155,000 QPS | **5.5x increase** |
+| **p95 Latency** | 32ms | 1.8ms | **94% reduction** |
+| **p99 Latency** | 74ms | 4.6ms | **93.8% reduction** |
+| **Origin DB Load** | 82% CPU | 14% CPU | **82% reduction** |
+
+---
+
+## Lessons Learned & Future Work
+
+- **Mechanical Sympathy:** Designing software that aligns with CPU cache lines (L1/L2/L3) and minimizing pointer chasing yields order-of-magnitude improvements in Go network services.
+- **Next Iteration:** Currently evaluating io_uring on Linux kernels 6.x to bypass network syscall overhead for direct kernel-bypass socket reads.

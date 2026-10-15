@@ -1,0 +1,102 @@
+---
+slug: "cloud-scale"
+title: "Cloud Microservices Migration Platform"
+summary: "Zero-downtime decomposition of a monolithic legacy banking platform into cloud-native microservices on AWS EKS using event sourcing and the strangler fig pattern."
+coverImage: "/images/projects/cloud-scale.webp"
+role: "Lead Platform Engineer & Solutions Architect"
+period: "2021 - 2022"
+teamSize: 8
+order: 3
+featured: true
+repoUrl: "https://github.com/example/cloud-scale-migration"
+liveUrl: "https://cloud-architecture.example.com"
+metrics:
+  - label: "Downtime"
+    value: "0 min (Zero)"
+  - label: "Deploy Frequency"
+    value: "1/mo ➔ 14/day"
+  - label: "Cost Savings"
+    value: "$340k/yr"
+  - label: "MTTR"
+    value: "< 8 minutes"
+stack:
+  - "TypeScript"
+  - "Go"
+  - "AWS EKS"
+  - "Terraform"
+  - "Apache Kafka"
+  - "PostgreSQL"
+  - "Istio Service Mesh"
+  - "ArgoCD"
+---
+
+## Executive Overview
+
+An enterprise financial services core was encumbered by an 8-year-old monolithic Ruby on Rails backend coupled with a massive shared database. Deployment cycles took 4+ weeks with high regression risk, impeding product velocity and threatening SLA compliance during peak trading hours.
+
+As the Lead Platform Engineer, I orchestrated a multi-phase **Strangler Fig architectural migration** to decouple mission-critical domain services into resilient microservices orchestrated via Kubernetes on AWS, without a single second of customer-facing downtime.
+
+---
+
+## Migration Strategy & Topology
+
+```
+                  ┌──────────────────────────────┐
+                  │    Cloudflare Edge / WAF     │
+                  └──────────────┬───────────────┘
+                                 │
+                                 ▼
+                  ┌──────────────────────────────┐
+                  │ Envoy / Istio Ingress Gateway│
+                  └──────────────┬───────────────┘
+                                 │
+           ┌─────────────────────┴─────────────────────┐
+           │ Dynamic Traffic Routing (Canary % Split)  │
+           ▼                                           ▼
+┌─────────────────────────────┐         ┌─────────────────────────────┐
+│  Decomposed Microservices   │         │ Legacy Monolith Core        │
+│  (Go / Node.js on AWS EKS)  │         │ (Gradually Deprecated)      │
+└──────────────┬──────────────┘         └──────────────┬──────────────┘
+               │                                       │
+               ▼                                       ▼
+       [ Kafka Event Bus ] ◄────── Debezium CDC ───────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ Isolated Read-Model DBs     │
+│ (PostgreSQL Aurora Serverless)
+└─────────────────────────────┘
+```
+
+### Strangler Fig Implementation Details
+
+1. **Traffic Shadowing & Routing at the Ingress Layer:**
+   - Deployed Istio Service Mesh with Envoy ingress controllers.
+   - Mirrored live production traffic 1:1 to new microservices without affecting caller responses to validate algorithmic parity and compare output responses.
+2. **Change Data Capture (CDC) with Debezium & Kafka:**
+   - Avoided distributed dual-writes by attaching Debezium CDC listeners directly to PostgreSQL database write-ahead logs (WAL).
+   - Streamed transactional mutations in real-time across Apache Kafka topics, allowing new decoupled services to build independent read-optimized data projections.
+3. **Automated Canary Deployments with ArgoCD & Flagger:**
+   - Established GitOps-driven deployment pipelines.
+   - Automated traffic stepping (1% ➔ 5% ➔ 25% ➔ 100%) governed by Prometheus error budgets and latency thresholds, with instantaneous automated rollbacks.
+
+---
+
+## Overcoming Key Hurdles
+
+### Database Schema Decoupling & Foreign Key Hell
+The monolithic database contained over 400 interconnected tables with strict foreign key constraints across domain boundaries.
+- **Solution:** Defined bounded contexts according to Domain-Driven Design (DDD). Replaced cross-domain foreign keys with asynchronous domain events and eventual consistency patterns using the Saga pattern for multi-service transactions.
+- **Outcome:** Decoupled database locks, eliminating cascading table lock contentions that previously triggered cascading failures.
+
+### Maintaining Strict SOC-2 and Financial Compliance
+Financial regulations required immutable audit logs for every state transition and zero plaintext credential exposure.
+- **Solution:** Enforced strict mutual TLS (mTLS) across all pod-to-pod communications via Istio, automated dynamic secret rotation using HashiCorp Vault with AWS IAM role assumption, and implemented cryptographically verifiable event audit logs.
+
+---
+
+## Organizational & Engineering Impact
+
+- **Velocity Transformation:** Engineering went from monthly, high-stress weekend deployments to shipping code to production over 14 times per day with total confidence.
+- **Infrastructure Efficiency:** Right-sized compute with Kubernetes Horizontal Pod Autoscalers (HPA) and AWS Graviton processors, yielding **$340,000 in annualized AWS cloud savings**.
+- **Observability:** Centralized distributed traces and structured metrics reduced incident diagnosis time (MTTR) from 2.5 hours to under 8 minutes.

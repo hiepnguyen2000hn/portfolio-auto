@@ -1,0 +1,102 @@
+---
+slug: "realtime-collab"
+title: "Real-time Collaborative Canvas"
+summary: "A high-performance infinite digital whiteboard engine featuring local-first CRDT conflict resolution, WebGL accelerated rendering, and sub-30ms multiplayer state sync."
+coverImage: "/images/projects/realtime-collab.webp"
+role: "Staff Frontend Architect & Engineering Lead"
+period: "2022 - 2023"
+teamSize: 6
+order: 2
+featured: true
+repoUrl: "https://github.com/example/realtime-collab-canvas"
+liveUrl: "https://canvas.example.com"
+metrics:
+  - label: "Frame Rate"
+    value: "60 FPS (100k nodes)"
+  - label: "Sync Latency"
+    value: "< 25ms"
+  - label: "Concurrent Users"
+    value: "50+ per room"
+  - label: "Memory Overhead"
+    value: "-55%"
+stack:
+  - "TypeScript"
+  - "React 19"
+  - "WebGL"
+  - "PixiJS"
+  - "WebSockets"
+  - "Yjs (CRDTs)"
+  - "Web Workers"
+  - "Node.js"
+---
+
+## Executive Overview
+
+Collaborative digital whiteboards and design tools require uncompromising rendering performance while seamlessly synchronizing concurrent edits from dozens of remote participants across unreliable network connections.
+
+Traditional DOM-based canvases or naive WebSocket message broadcasting suffer from frame-drops during complex pan/zoom operations and catastrophic edit collisions when users work offline or on high-latency mobile networks.
+
+We engineered a **local-first collaborative canvas engine** from scratch using WebGL batching, Yjs Conflict-free Replicated Data Types (CRDTs), and off-thread state indexing inside Web Workers.
+
+---
+
+## Architectural Breakdown
+
+```
+ ┌──────────────────────────────────────────────────────────────┐
+ │                     Main Browser Thread                      │
+ │   User Input (Pointer/Touch) ──► Reactive UI (React 19)      │
+ │                                        │                     │
+ └────────────────────────────────────────┼─────────────────────┘
+                                          │ PostMessage (SharedArrayBuffer)
+                                          ▼
+ ┌──────────────────────────────────────────────────────────────┐
+ │                    Dedicated Web Worker                      │
+ │  ┌────────────────────────┐      ┌─────────────────────────┐ │
+ │  │ Yjs Document (CRDT)    │◄────►│ Spatial Index (R-Tree)  │ │
+ │  └───────────┬────────────┘      └────────────┬────────────┘ │
+ └──────────────┼────────────────────────────────┼──────────────┘
+                │ Binary Delta Updates           │ Viewport Query
+                ▼                                ▼
+ ┌───────────────────────────┐      ┌───────────────────────────┐
+ │ WebSocket Gateway Server  │      │ OffscreenCanvas (WebGL)   │
+ │ (Sub-20ms Edge Broadcast) │      │ 60 FPS Hardware Render    │
+ └───────────────────────────┘      └───────────────────────────┘
+```
+
+### Core Design Decisions
+
+1. **Local-First Conflict Resolution (CRDTs):**
+   - Implemented Yjs state trees representing shapes, vectors, freehand strokes, and comments.
+   - Edits are committed immediately to the local client state and serialized as compact binary diffs broadcast asynchronously to peers.
+   - Mathematical convergence guarantees identical state without requiring lock management or server arbitration.
+
+2. **Off-Thread Computation with Web Workers:**
+   - Isolated graph parsing, spatial index querying (2D R-Tree), and CRDT delta merging onto background workers.
+   - The main UI thread remains completely unblocked, guaranteeing jitter-free 60/120Hz scrolling, zooming, and trackpad gestures.
+
+3. **Hardware-Accelerated WebGL Viewport:**
+   - Replaced SVG/HTML5 2D canvas with instanced WebGL drawing routines.
+   - Implemented dynamic Level of Detail (LoD) downsampling for distant viewports, rendering up to 100,000 active scene elements effortlessly.
+
+---
+
+## Complex Challenges Solved
+
+### Handling Concurrent Freehand Drawing at Scale
+Continuous pen and brush input generates hundreds of coordinates per second. Broadcasting raw coordinates flooded WebSocket buffers and bloated memory history.
+- **Solution:** Designed an adaptive Douglas-Peucker bezier curve simplification pipeline running directly on pointer move. Points are batched and encoded using delta-varint compression before CRDT transaction dispatch.
+- **Outcome:** Bandwidth consumption dropped by **78%** without any discernible degradation in stroke smoothness.
+
+### Real-Time Presence & Ephemeral Cursors
+Syncing remote cursors through persistent CRDT structures created unnecessary historical tombstone overhead.
+- **Solution:** Separated the sync layer into two distinct channels:
+  - *Durable State:* Yjs binary document sync over WebSockets.
+  - *Ephemeral State:* Lightweight binary WebRTC DataChannels for cursor coordinates and selection halos, with automatic interpolation.
+
+---
+
+## Impact & Key Metrics
+
+- **Zero Data Loss:** Successfully maintained state integrity across 10,000+ simulation hours with intentional 30% packet loss and 2-minute complete network disconnects.
+- **Buttery Smooth Rendering:** Maintained consistent 60 FPS on typical laptop hardware even with 50+ simultaneous editors modifying dense architectural diagrams.

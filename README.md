@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Senior Developer 3D Portfolio
 
-## Getting Started
+Website Portfolio 3D tương tác chất lượng cao dành cho Senior Developer.
 
-First, run the development server:
+## Tech Stack
+- **Framework:** Next.js 16 (App Router) + React 19 + TypeScript (Strict)
+- **Styling:** Tailwind CSS + CSS Variables (Dark/Light mode via next-themes)
+- **3D & Visuals:** Three.js + React Three Fiber + Drei
+- **Animation:** GSAP ScrollTrigger + Lenis + Framer Motion
+- **Content:** MDX case studies + Zod validation schemas
+- **Form & Email:** React Hook Form + Zod + Resend API + Rate limiting & Honeypot
+- **Testing:** Vitest + React Testing Library
 
+## Yêu cầu môi trường
+- Node.js >= 20
+- npm >= 10
+
+## Cài đặt & Chạy Local
 ```bash
+# Cài đặt dependencies
+npm install --legacy-peer-deps
+
+# Khởi chạy dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt.
+
+## Các lệnh thường dùng
+```bash
+npm run dev        # Chạy máy chủ phát triển
+npm run build      # Build cho production
+npm run lint       # Kiểm tra ESLint
+npm run typecheck  # Kiểm tra kiểu dữ liệu TypeScript
+npm run test       # Chạy unit test với Vitest
+npm run format     # Format code với Prettier
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Cấu trúc thư mục
+```
+├── app/                  # Next.js App Router (pages, layout, api)
+├── components/
+│   ├── ui/               # UI Primitives (Button, Card, Badge, SectionTitle...)
+│   ├── sections/         # Hero, About, Skills, Experience, Projects, Contact...
+│   ├── three/            # 3D Canvas, HeroScene, Particles, Fallback
+│   ├── motion/           # Reveal animations, smooth scroll
+│   └── providers/        # ThemeProvider, SmoothScrollProvider
+├── content/
+│   └── projects/         # MDX case studies
+├── data/                 # Dữ liệu tĩnh (profile, experience, skills, testimonials)
+├── lib/                  # Utilities (env, date, projects, seo, rate-limit)
+└── types/                # Zod schemas & TypeScript types
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tuỳ chỉnh nội dung
+Toàn bộ thông tin cá nhân và dự án được tách biệt khỏi UI:
+- Chỉnh sửa thông tin cá nhân tại `data/profile.ts`
+- Chỉnh sửa kinh nghiệm làm việc tại `data/experience.ts`
+- Chỉnh sửa kỹ năng tại `data/skills.ts`
+- Thêm hoặc sửa case study dự án bằng các file MDX trong `content/projects/`

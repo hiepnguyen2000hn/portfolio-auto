@@ -1,26 +1,106 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --bg-elevated: #f8f8fb;
+  --fg: #0f0f14;
+  --fg-muted: #64748b;
+  --border: rgba(0, 0, 0, 0.08);
+  --primary: #6E56CF;
+  --primary-fg: #ffffff;
+  --accent: #22D3EE;
+  --glow: rgba(110, 86, 207, 0.2);
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(0, 0, 0, 0.08);
+
+  /* Next.js default compatibility */
+  --background: var(--bg);
+  --foreground: var(--fg);
+}
+
+.dark {
+  --bg: #09090e;
+  --bg-elevated: #13131c;
+  --fg: #f4f4f7;
+  --fg-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.08);
+  --primary: #6E56CF;
+  --primary-fg: #ffffff;
+  --accent: #22D3EE;
+  --glow: rgba(110, 86, 207, 0.35);
+  --glass-bg: rgba(15, 15, 23, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+
+  --background: var(--bg);
+  --foreground: var(--fg);
 }
 
 @theme inline {
+  --color-bg: var(--bg);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-accent: var(--accent);
+  --color-glow: var(--glow);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Glass utility class */
+.glass {
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+}
+
+/* Baseline styling & smooth transition for theme switch */
+html {
+  color-scheme: dark;
+}
+
+html.light {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom selection */
+::selection {
+  background-color: var(--primary);
+  color: var(--primary-fg);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-muted);
 }
