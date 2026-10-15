@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { motion, useMotionValueEvent } from "framer-motion";
 import { Menu, X, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useScrollProgress } from "@/lib/hooks/useScrollProgress";
 import { Container } from "./Container";
 import { Button } from "./Button";
 import { ThemeToggle } from "./ThemeToggle";
@@ -26,16 +28,19 @@ export function Navbar() {
   const [activeSection, setActiveSection] = React.useState<string>("");
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
-  // Monitor scroll offset to toggle transparent vs glass navbar
+  // Monitor scroll offset via global scroll progress without adding raw window scroll listener
+  const scrollProgress = useScrollProgress();
   React.useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 24);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    if (typeof window !== "undefined") {
+      setScrolled(window.scrollY > 80);
+    }
   }, []);
+
+  useMotionValueEvent(scrollProgress, "change", () => {
+    if (typeof window !== "undefined") {
+      setScrolled(window.scrollY > 80);
+    }
+  });
 
   // IntersectionObserver to highlight current active section
   React.useEffect(() => {
@@ -111,8 +116,8 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
-          ? "bg-[var(--bg)]/90 dark:bg-[var(--bg)]/92 backdrop-blur-xl border-b border-[var(--border)] shadow-md shadow-black/5 py-3"
-          : "bg-[var(--bg)]/75 dark:bg-[var(--bg)]/80 backdrop-blur-md border-b border-[var(--border)]/40 py-4"
+          ? "bg-[var(--bg)]/90 dark:bg-[var(--bg)]/92 backdrop-blur-xl border-b border-[var(--border)] shadow-md shadow-black/5 py-2.5"
+          : "bg-[var(--bg)]/70 dark:bg-[var(--bg)]/75 backdrop-blur-md border-b border-[var(--border)]/30 py-4"
       )}
     >
       <Container>
@@ -120,21 +125,21 @@ export function Navbar() {
           {/* Logo / Initials */}
           <Link
             href="/"
-            className="group flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+            className="group flex items-center gap-2.5 outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] rounded-lg"
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary font-mono text-sm font-bold tracking-tight transition-all duration-300 group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-fg group-hover:shadow-[0_0_15px_var(--glow)]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--primary)]/10 border border-[var(--primary)]/20 text-[var(--primary)] font-mono text-sm font-bold tracking-tight transition-all duration-300 group-hover:scale-105 group-hover:bg-[var(--primary)] group-hover:text-[var(--primary-fg)] group-hover:shadow-[0_0_15px_var(--glow)]">
               SD
             </span>
             <div className="flex flex-col">
-              <span className="font-semibold text-sm sm:text-base tracking-tight text-fg group-hover:text-primary transition-colors">
-                Portfolio<span className="text-accent">.</span>
+              <span className="font-semibold text-sm sm:text-base tracking-tight text-[var(--fg)] group-hover:text-[var(--primary)] transition-colors">
+                Portfolio<span className="text-[var(--accent)]">.</span>
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
           <nav
-            className="hidden md:flex items-center gap-1 lg:gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-bg-elevated/40 backdrop-blur-md"
+            className="hidden md:flex items-center gap-1 px-3 py-1.5 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)]/40 backdrop-blur-md"
             aria-label="Main Navigation"
           >
             {NAV_LINKS.map((link) => {
@@ -146,16 +151,20 @@ export function Navbar() {
                   href={link.href}
                   onClick={(e) => handleLinkClick(e, link.href)}
                   className={cn(
-                    "relative px-3.5 py-1.5 text-xs lg:text-sm font-medium rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    "relative px-3.5 py-1.5 text-xs lg:text-sm font-medium rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]",
                     isActive
-                      ? "text-primary font-semibold bg-primary/10 shadow-sm"
-                      : "text-fg-muted hover:text-fg hover:bg-bg-elevated/60"
+                      ? "text-[var(--primary)] font-semibold"
+                      : "text-[var(--fg-muted)] hover:text-[var(--fg)]"
                   )}
                   aria-current={isActive ? "page" : undefined}
                 >
                   {link.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-1/2 h-0.5 w-3 -translate-x-1/2 rounded-full bg-primary" />
+                    <motion.span
+                      layoutId="activeNavIndicator"
+                      className="absolute inset-0 rounded-full bg-[var(--primary)]/15 border border-[var(--primary)]/30 -z-10"
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                    />
                   )}
                 </a>
               );

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Lenis from "lenis";
+import { registerLenis } from "@/lib/hooks/useScrollProgress";
 
 export interface SmoothScrollProps {
   children: React.ReactNode;
@@ -31,6 +32,8 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       touchMultiplier: 2,
     });
 
+    registerLenis(lenis);
+
     let animationFrameId: number;
 
     function raf(time: number) {
@@ -42,6 +45,7 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      registerLenis(null);
       lenis.destroy();
     };
   }, []);

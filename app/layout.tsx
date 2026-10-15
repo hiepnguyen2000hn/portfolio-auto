@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { SmoothScrollProvider } from '@/components/providers/SmoothScroll';
 import { Navbar } from '@/components/ui/Navbar';
 import { Footer } from '@/components/ui/Footer';
+import { ScrollRail } from '@/components/motion/ScrollRail';
 import { siteConfig, getPersonJsonLd } from '@/lib/seo';
 
 const geistSans = Geist({
@@ -75,6 +76,7 @@ export default function RootLayout({
           <SmoothScrollProvider>
             <div className="flex flex-col min-h-screen">
               <Navbar />
+              <ScrollRail />
               <main id="content" className="flex-1">
                 {children}
               </main>
