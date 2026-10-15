@@ -27,7 +27,8 @@ export function Skills() {
       <Container>
         <Reveal>
           <SectionTitle
-            eyebrow="02. Skills"
+            index="02"
+            eyebrow="SKILLS"
             title="Công nghệ & Năng lực kỹ thuật chuyên sâu"
             description="Kinh nghiệm thực chiến qua nhiều tầng kiến trúc, từ microservices hiệu năng cao đến giao diện tương tác hiện đại."
           />

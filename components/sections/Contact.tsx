@@ -73,7 +73,8 @@ export function Contact() {
       <Container>
         <Reveal>
           <SectionTitle
-            eyebrow="06. Contact"
+            index="06"
+            eyebrow="CONTACT"
             title="Cùng xây dựng điều gì đó tuyệt vời?"
             description="Tôi luôn cởi mở trao đổi về các cơ hội Staff/Senior Engineering, tư vấn kiến trúc hoặc hợp tác kỹ thuật."
           />

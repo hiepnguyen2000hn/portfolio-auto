@@ -2,17 +2,20 @@
 @import "lenis/dist/lenis.css";
 
 :root {
-  --bg: #ffffff;
-  --bg-elevated: #f8f8fb;
-  --fg: #0f0f14;
-  --fg-muted: #64748b;
-  --border: rgba(0, 0, 0, 0.08);
-  --primary: #6E56CF;
+  --bg: #F7FAFC;
+  --bg-elevated: #EDF4F9;
+  --fg: #0A1018;
+  --fg-muted: #4A6377;
+  --border: rgba(10, 16, 24, 0.08);
+  --primary: #0284C7;
   --primary-fg: #ffffff;
-  --accent: #22D3EE;
-  --glow: rgba(110, 86, 207, 0.2);
-  --glass-bg: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  --accent: #06B6D4;
+  --aurora-1: #2DD4BF;
+  --aurora-2: #4F7CFF;
+  --frost: rgba(10, 16, 24, 0.04);
+  --glow: rgba(2, 132, 199, 0.2);
+  --glass-bg: rgba(247, 250, 252, 0.92);
+  --glass-border: rgba(10, 16, 24, 0.08);
 
   /* Next.js default compatibility */
   --background: var(--bg);
@@ -20,17 +23,20 @@
 }
 
 .dark {
-  --bg: #09090e;
-  --bg-elevated: #13131c;
-  --fg: #f4f4f7;
-  --fg-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.08);
-  --primary: #6E56CF;
-  --primary-fg: #ffffff;
-  --accent: #22D3EE;
-  --glow: rgba(110, 86, 207, 0.35);
-  --glass-bg: rgba(9, 9, 14, 0.92);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --bg: #060B12;
+  --bg-elevated: #0B1420;
+  --fg: #EAF4FB;
+  --fg-muted: #8CA6BC;
+  --border: rgba(226, 244, 255, 0.08);
+  --primary: #38BDF8;
+  --primary-fg: #060B12;
+  --accent: #7DF9FF;
+  --aurora-1: #2DD4BF;
+  --aurora-2: #4F7CFF;
+  --frost: rgba(226, 244, 255, 0.06);
+  --glow: rgba(56, 189, 248, 0.35);
+  --glass-bg: rgba(6, 11, 18, 0.92);
+  --glass-border: rgba(226, 244, 255, 0.1);
 
   --background: var(--bg);
   --foreground: var(--fg);
@@ -45,6 +51,9 @@
   --color-primary: var(--primary);
   --color-primary-fg: var(--primary-fg);
   --color-accent: var(--accent);
+  --color-aurora-1: var(--aurora-1);
+  --color-aurora-2: var(--aurora-2);
+  --color-frost: var(--frost);
   --color-glow: var(--glow);
 
   --color-background: var(--background);
@@ -54,12 +63,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Glass utility class */
+/* Frost Glass utility class with top specular highlight */
 .glass {
   background-color: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 @media print {

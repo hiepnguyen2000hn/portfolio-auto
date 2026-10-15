@@ -39,12 +39,12 @@ function generateParticlesData(
   const pos = new Float32Array(count * 3);
   const col = new Float32Array(count * 3);
 
-  // Color 1: Cyan (#22D3EE -> [0.133, 0.827, 0.933])
-  const colorCyan = new THREE.Color('#22D3EE');
-  // Color 2: Purple (#6E56CF -> [0.431, 0.337, 0.812])
-  const colorPurple = new THREE.Color('#6E56CF');
-  // Color 3: Light accent highlight
-  const colorWhite = new THREE.Color('#E0E7FF');
+  // Color 1: Electric Ice (#7DF9FF -> Arctic accent)
+  const colorCyan = new THREE.Color('#7DF9FF');
+  // Color 2: Sky Blue (#38BDF8 -> Arctic primary)
+  const colorSky = new THREE.Color('#38BDF8');
+  // Color 3: Glacier White (#EAF4FB -> Arctic fg)
+  const colorWhite = new THREE.Color('#EAF4FB');
 
   const tempColor = new THREE.Color();
 
@@ -68,7 +68,7 @@ function generateParticlesData(
     if (mixRatio < 0.45) {
       tempColor.copy(colorCyan).lerp(colorWhite, prng() * 0.3);
     } else if (mixRatio < 0.9) {
-      tempColor.copy(colorPurple).lerp(colorWhite, prng() * 0.3);
+      tempColor.copy(colorSky).lerp(colorWhite, prng() * 0.3);
     } else {
       tempColor.copy(colorWhite);
     }

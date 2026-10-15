@@ -23,7 +23,7 @@ export function Hero(): React.JSX.Element {
     >
       {/* Background ambient lighting gradients */}
       <div
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#6E56CF]/15 to-[#22D3EE]/15 blur-3xl sm:w-[900px]"
+        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[500px] w-[600px] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[var(--primary)]/15 via-[var(--aurora-1)]/10 to-[var(--accent)]/15 blur-3xl sm:w-[900px]"
         aria-hidden="true"
       />
 
@@ -31,42 +31,44 @@ export function Hero(): React.JSX.Element {
         <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
           {/* Left Column: Semantic, SEO & LCP-first typography */}
           <div className="flex flex-col items-start justify-center lg:col-span-7">
-            {/* Eyebrow status badge with pulsating green beacon */}
-            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 backdrop-blur-md">
+            {/* Eyebrow status badge with pulsating beacon */}
+            <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-[var(--border)] bg-[var(--bg-elevated)]/70 px-3.5 py-1.5 text-xs font-mono text-[var(--fg)] backdrop-blur-md">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--accent)] opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--primary)]" />
               </span>
-              <span>Available for new opportunities</span>
+              <span className="text-[var(--fg-muted)]">SYSTEM STATUS //</span>
+              <span className="font-semibold text-[var(--fg)]">Available for new opportunities</span>
             </div>
 
             {/* Impressive Main Headline */}
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-foreground leading-[1.12]">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-[var(--fg)] leading-[1.12]">
               Building{' '}
-              <span className="bg-gradient-to-r from-[#6E56CF] via-[#9333EA] to-[#22D3EE] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[var(--primary)] via-[var(--aurora-1)] to-[var(--accent)] bg-clip-text text-transparent">
                 Scalable Architecture
               </span>{' '}
               &amp; High-Performance Web Systems
             </h1>
 
             {/* Subtitle highlighting Senior Full-Stack / Systems Engineer expertise */}
-            <p className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg lg:text-xl leading-relaxed text-zinc-600 dark:text-zinc-300">
+            <p className="mt-6 max-w-2xl text-base text-[var(--fg-muted)] sm:text-lg lg:text-xl leading-relaxed">
               Senior Full-Stack &amp; Systems Engineer with 8+ years architecting
               resilient distributed backends, low-latency microservices, and fluid,
               accessible web experiences backed by production-grade engineering.
             </p>
 
             {/* Quick architectural highlights / badges */}
-            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-900/70 px-2.5 py-1">
-                <Terminal className="h-3.5 w-3.5 text-[#6E56CF]" />
+            <div className="mt-6 flex flex-wrap items-center gap-3 text-xs text-[var(--fg-muted)] font-mono">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-elevated)]/70 px-2.5 py-1">
+                <Terminal className="h-3.5 w-3.5 text-[var(--primary)]" />
                 Distributed Systems
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-900/70 px-2.5 py-1">
-                <Sparkles className="h-3.5 w-3.5 text-[#22D3EE]" />
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-elevated)]/70 px-2.5 py-1">
+                <Sparkles className="h-3.5 w-3.5 text-[var(--accent)]" />
                 Next.js 16 &amp; WebGL
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-100/70 dark:bg-zinc-900/70 px-2.5 py-1">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--bg-elevated)]/70 px-2.5 py-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--aurora-1)]" />
                 99.99% Reliability
               </span>
             </div>
@@ -83,29 +85,29 @@ export function Hero(): React.JSX.Element {
               <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
                 <Link href="#contact" className="flex items-center justify-center gap-2">
                   <Send className="h-4 w-4" />
-                  <span>Liên hệ</span>
+                  <span>Liên hệ ngay</span>
                 </Link>
               </Button>
 
               <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
                 <a
-                  href={profile.cvUrl || '/cv.pdf'}
+                  href={profile.cvUrl}
+                  download="Alex-Nguyen-Senior-Dev-CV.pdf"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2"
                 >
                   <FileText className="h-4 w-4" />
-                  <span>Tải CV</span>
+                  <span>Tải CV (PDF)</span>
                 </a>
               </Button>
             </div>
           </div>
 
-          {/* Right Column: 3D Canvas on Desktop, background overlay on mobile */}
-          <div className="relative flex items-center justify-center lg:col-span-5 h-[380px] sm:h-[450px] lg:h-[540px]">
-            {/* Mobile background backdrop: renders subtly without blocking clicks */}
-            <div className="absolute inset-0 -z-10 lg:static lg:z-auto lg:h-full lg:w-full opacity-40 lg:opacity-100 pointer-events-none lg:pointer-events-auto">
-              <HeroCanvas className="h-full w-full" />
+          {/* Right Column: Interactive 3D Canvas */}
+          <div className="relative flex items-center justify-center lg:col-span-5">
+            <div className="relative aspect-square w-full max-w-[460px] sm:max-w-[520px] lg:max-w-none">
+              <HeroCanvas />
             </div>
           </div>
         </div>

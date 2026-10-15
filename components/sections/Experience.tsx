@@ -16,7 +16,8 @@ export function Experience() {
       <Container>
         <Reveal>
           <SectionTitle
-            eyebrow="03. Experience"
+            index="03"
+            eyebrow="EXPERIENCE"
             title="Hành trình sự nghiệp & Tác động thực tế"
             description="Kinh nghiệm dẫn dắt kỹ thuật và xây dựng sản phẩm bền bỉ qua các giai đoạn tăng trưởng quy mô lớn."
           />

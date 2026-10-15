@@ -25,7 +25,8 @@ export function FeaturedProjects({ projects, showHeader = true }: FeaturedProjec
         {showHeader && (
           <Reveal>
             <SectionTitle
-              eyebrow="04. Projects"
+              index="04"
+              eyebrow="PROJECTS"
               title="Dự án tiêu biểu & Kết quả thực tiễn"
               description="Các dự án kỹ thuật quy mô cao, tập trung giải quyết độ trễ, lưu lượng lớn và trải nghiệm tương tác trực quan."
             />

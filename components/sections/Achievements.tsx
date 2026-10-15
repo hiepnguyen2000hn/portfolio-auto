@@ -24,7 +24,8 @@ export function Achievements() {
         {/* Achievements Section */}
         <Reveal>
           <SectionTitle
-            eyebrow="05. Recognition"
+            index="05"
+            eyebrow="RECOGNITION"
             title="Thành tích & Chứng nhận chuyên môn"
             description="Những dấu mốc ghi nhận sự cống hiến kỹ thuật và đóng góp cho cộng đồng công nghệ."
           />

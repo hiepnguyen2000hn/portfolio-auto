@@ -59,7 +59,7 @@ function CoreMesh({ isHovered, onHover }: CoreMeshProps): React.JSX.Element {
       <mesh ref={wireframeRef}>
         <icosahedronGeometry args={[1.85, 1]} />
         <meshBasicMaterial
-          color="#22D3EE"
+          color="#7DF9FF"
           wireframe
           transparent
           opacity={0.25}
@@ -82,11 +82,11 @@ function CoreMesh({ isHovered, onHover }: CoreMeshProps): React.JSX.Element {
       >
         <icosahedronGeometry args={[1.35, 1]} />
         <meshStandardMaterial
-          color="#140b28"
+          color="#0B1420"
           roughness={0.15}
           metalness={0.9}
           flatShading
-          emissive="#6E56CF"
+          emissive="#38BDF8"
           emissiveIntensity={0.25}
         />
       </mesh>
@@ -110,29 +110,29 @@ function SceneContent(): React.JSX.Element {
       {/* Directional rim light */}
       <directionalLight position={[0, 6, 6]} intensity={1.5} color="#ffffff" />
 
-      {/* Purple Point Light (#6E56CF) */}
+      {/* Sky Blue Point Light (#38BDF8) */}
       <pointLight
         position={[-4, 3, 2]}
         intensity={2.8}
-        color="#6E56CF"
+        color="#38BDF8"
         distance={15}
         decay={2}
       />
 
-      {/* Cyan Point Light (#22D3EE) */}
+      {/* Electric Ice Cyan Point Light (#7DF9FF) */}
       <pointLight
         position={[4, -2.5, 3]}
         intensity={3.2}
-        color="#22D3EE"
+        color="#7DF9FF"
         distance={15}
         decay={2}
       />
 
-      {/* Subtle bottom backlight */}
+      {/* Aurora Teal Point Light (#2DD4BF) */}
       <pointLight
         position={[0, -4, -2]}
-        intensity={1.2}
-        color="#9333EA"
+        intensity={1.5}
+        color="#2DD4BF"
         distance={10}
       />
 

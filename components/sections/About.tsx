@@ -42,7 +42,8 @@ export function About() {
       <Container>
         <Reveal>
           <SectionTitle
-            eyebrow="01. About"
+            index="01"
+            eyebrow="ABOUT"
             title="Đam mê kiến trúc bền vững & trải nghiệm đỉnh cao"
             description="Tập trung vào giải quyết các bài toán kỹ thuật phức tạp với giải pháp thanh lịch, hiệu quả và dễ mở rộng."
           />
@@ -70,7 +71,7 @@ export function About() {
                         <div className="w-10 h-10 rounded-lg bg-[var(--primary)]/10 text-[var(--accent)] flex items-center justify-center border border-[var(--primary)]/20">
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[var(--fg)]">
+                        <span className="text-2xl sm:text-3xl font-bold font-mono tracking-tight text-[var(--fg)] tabular-nums">
                           {stat.value}
                         </span>
                       </div>
@@ -86,7 +87,7 @@ export function About() {
           {/* Cột phải: Avatar Card với viền gradient */}
           <div className="lg:col-span-5 flex justify-center">
             <Reveal variant="scaleIn" delay={0.2} className="relative group">
-              <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl p-1 bg-gradient-to-tr from-[var(--primary)] via-[var(--accent)] to-purple-500 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+              <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-3xl p-1 bg-gradient-to-tr from-[var(--primary)] via-[var(--accent)] to-[var(--aurora-2)] shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
                 <div className="w-full h-full rounded-[22px] overflow-hidden bg-[var(--bg-elevated)] relative">
                   <Image
                     src={profile.avatar}
