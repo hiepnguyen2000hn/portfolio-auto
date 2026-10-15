@@ -15,19 +15,22 @@ import { GithubIcon } from '@/components/ui/Icons';
 
 interface FeaturedProjectsProps {
   projects: Project[];
+  showHeader?: boolean;
 }
 
-export function FeaturedProjects({ projects }: FeaturedProjectsProps) {
+export function FeaturedProjects({ projects, showHeader = true }: FeaturedProjectsProps) {
   return (
     <section id="projects" className="py-24 relative overflow-hidden bg-[var(--bg-elevated)]/20">
       <Container>
-        <Reveal>
-          <SectionTitle
-            eyebrow="04. Projects"
-            title="Dự án tiêu biểu & Kết quả thực tiễn"
-            description="Các dự án kỹ thuật quy mô cao, tập trung giải quyết độ trễ, lưu lượng lớn và trải nghiệm tương tác trực quan."
-          />
-        </Reveal>
+        {showHeader && (
+          <Reveal>
+            <SectionTitle
+              eyebrow="04. Projects"
+              title="Dự án tiêu biểu & Kết quả thực tiễn"
+              description="Các dự án kỹ thuật quy mô cao, tập trung giải quyết độ trễ, lưu lượng lớn và trải nghiệm tương tác trực quan."
+            />
+          </Reveal>
+        )}
 
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
           {projects.map((project, index) => {

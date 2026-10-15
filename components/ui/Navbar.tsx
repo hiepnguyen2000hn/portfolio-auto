@@ -111,8 +111,8 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-300",
         scrolled
-          ? "glass border-b border-border shadow-sm py-3"
-          : "bg-transparent border-b border-transparent py-5"
+          ? "bg-[var(--bg)]/90 dark:bg-[var(--bg)]/92 backdrop-blur-xl border-b border-[var(--border)] shadow-md shadow-black/5 py-3"
+          : "bg-[var(--bg)]/75 dark:bg-[var(--bg)]/80 backdrop-blur-md border-b border-[var(--border)]/40 py-4"
       )}
     >
       <Container>

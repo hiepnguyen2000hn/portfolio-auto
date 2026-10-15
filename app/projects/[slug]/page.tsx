@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProjectDetailPage({ params }: Props) {
+async function ProjectDetailContent({ params }: Props) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
@@ -180,5 +180,19 @@ export default async function ProjectDetailPage({ params }: Props) {
         )}
       </Container>
     </article>
+  );
+}
+
+export default function ProjectDetailPage(props: Props) {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen pt-36 text-center text-[var(--fg-muted)]">
+          Đang tải case study...
+        </div>
+      }
+    >
+      <ProjectDetailContent {...props} />
+    </React.Suspense>
   );
 }

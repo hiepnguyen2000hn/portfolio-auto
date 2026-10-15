@@ -22,7 +22,7 @@ export default function ProjectsPage() {
           description="Khám phá chi tiết các dự án kỹ thuật quy mô lớn đã được thiết kế và triển khai production."
         />
       </Container>
-      <FeaturedProjects projects={allProjects} />
+      <FeaturedProjects projects={allProjects} showHeader={false} />
     </div>
   );
 }

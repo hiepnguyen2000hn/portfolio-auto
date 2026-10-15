@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 
 export interface RevealProps {
@@ -14,7 +14,7 @@ export interface RevealProps {
 
 const variantsMap = {
   fadeUp: {
-    hidden: { opacity: 0, y: 28 },
+    hidden: { opacity: 0, y: 24 },
     visible: { opacity: 1, y: 0 },
   },
   fadeIn: {
@@ -22,11 +22,11 @@ const variantsMap = {
     visible: { opacity: 1 },
   },
   scaleIn: {
-    hidden: { opacity: 0, scale: 0.94 },
+    hidden: { opacity: 0, scale: 0.96 },
     visible: { opacity: 1, scale: 1 },
   },
   slideLeft: {
-    hidden: { opacity: 0, x: 30 },
+    hidden: { opacity: 0, x: 24 },
     visible: { opacity: 1, x: 0 },
   },
 };
@@ -35,11 +35,16 @@ export function Reveal({
   children,
   variant = 'fadeUp',
   delay = 0,
-  duration = 0.6,
+  duration = 0.5,
   className = '',
   tag = 'div',
 }: RevealProps) {
   const prefersReducedMotion = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (prefersReducedMotion) {
     const Tag = tag;
@@ -51,12 +56,13 @@ export function Reveal({
 
   return (
     <MotionTag
-      initial="hidden"
+      initial={mounted ? 'hidden' : false}
       whileInView="visible"
-      viewport={{ once: true, margin: '-60px' }}
+      viewport={{ once: true, amount: 0.05, margin: '0px' }}
       variants={selectedVariant}
       transition={{ duration, delay, ease: [0.21, 0.47, 0.32, 0.98] }}
       className={className}
+      data-reveal
     >
       {children}
     </MotionTag>
