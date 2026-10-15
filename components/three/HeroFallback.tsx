@@ -70,9 +70,9 @@ export function HeroFallback(): React.JSX.Element {
           style={{ transform: 'rotate(45deg)', animationDirection: 'reverse', animationDuration: '40s' }}
         />
 
-        {/* Core glowing arctic gradient crystal sphere */}
+        {/* Core glowing frosted arctic aurora crystal sphere with hairline facets */}
         <div
-          className="relative h-44 w-44 rounded-full sm:h-56 sm:w-56 md:h-64 md:w-64"
+          className="relative h-44 w-44 rounded-full sm:h-56 sm:w-56 md:h-64 md:w-64 backdrop-blur-xl"
           style={{
             background:
               'radial-gradient(circle at 32% 28%, #7DF9FF 0%, #38BDF8 25%, #2DD4BF 55%, #0B1420 85%, #060B12 100%)',
@@ -80,6 +80,29 @@ export function HeroFallback(): React.JSX.Element {
               '0 0 50px rgba(56, 189, 248, 0.35), 0 0 100px rgba(125, 249, 255, 0.45), inset -10px -10px 30px rgba(6, 11, 18, 0.8), inset 8px 8px 24px rgba(255, 255, 255, 0.4)',
           }}
         >
+          {/* Hairline icosahedron crystal facet outline */}
+          <svg
+            viewBox="0 0 100 100"
+            className="absolute inset-0 w-full h-full pointer-events-none p-3.5"
+            aria-hidden="true"
+          >
+            <polygon
+              points="50,6 88,27 88,73 50,94 12,73 12,27"
+              fill="none"
+              stroke="rgba(125, 249, 255, 0.45)"
+              strokeWidth="0.8"
+            />
+            <line x1="50" y1="6" x2="50" y2="94" stroke="rgba(125, 249, 255, 0.3)" strokeWidth="0.5" />
+            <line x1="12" y1="27" x2="88" y2="73" stroke="rgba(125, 249, 255, 0.25)" strokeWidth="0.5" />
+            <line x1="12" y1="73" x2="88" y2="27" stroke="rgba(125, 249, 255, 0.25)" strokeWidth="0.5" />
+            <polygon
+              points="50,22 75,37 75,63 50,78 25,63 25,37"
+              fill="none"
+              stroke="rgba(56, 189, 248, 0.35)"
+              strokeWidth="0.6"
+            />
+          </svg>
+
           {/* Internal specular highlight / lens reflection */}
           <div
             className="absolute top-5 left-7 h-12 w-16 rounded-full bg-white/40 blur-sm sm:top-7 sm:left-9 sm:h-16 sm:w-20"

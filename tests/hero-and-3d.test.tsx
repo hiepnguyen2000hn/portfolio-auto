@@ -2,7 +2,7 @@ import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useCanRender3D, resetCanRender3DCache } from '@/lib/hooks/useCanRender3D';
+import { useCanRender3D, use3DCapability, resetCanRender3DCache } from '@/lib/hooks/useCanRender3D';
 import { HeroFallback } from '@/components/three/HeroFallback';
 import { Hero } from '@/components/sections/Hero';
 
@@ -124,8 +124,9 @@ describe('3D Capability Hook: useCanRender3D', () => {
       writable: true,
     });
 
-    const hook = testHook(() => useCanRender3D());
-    expect(hook.current).toBe(false);
+    const hook = testHook(() => use3DCapability());
+    expect(hook.current.tier).toBe('reduced');
+    expect(hook.current.canRender3D).toBe(true);
     hook.cleanup();
   });
 

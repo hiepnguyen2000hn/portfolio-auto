@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { useCanRender3D } from '@/lib/hooks/useCanRender3D';
+import { use3DCapability } from '@/lib/hooks/useCanRender3D';
 import { HeroFallback } from './HeroFallback';
 
 /**
@@ -32,7 +32,7 @@ interface HeroCanvasProps {
  */
 export function HeroCanvas({ className = '' }: HeroCanvasProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canRender3D = useCanRender3D();
+  const capability = use3DCapability();
   const [isInView, setIsInView] = useState<boolean>(true);
 
   useEffect(() => {
@@ -63,8 +63,8 @@ export function HeroCanvas({ className = '' }: HeroCanvasProps): React.JSX.Eleme
       ref={containerRef}
       className={`relative flex h-full w-full items-center justify-center ${className}`}
     >
-      {canRender3D ? (
-        <DynamicHeroScene isInView={isInView} />
+      {capability.canRender3D ? (
+        <DynamicHeroScene isInView={isInView} tier={capability.tier} />
       ) : (
         <HeroFallback />
       )}

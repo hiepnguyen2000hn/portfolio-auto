@@ -7,6 +7,7 @@ import { getAllProjects, getProjectBySlug } from '@/lib/projects';
 import { Container } from '@/components/ui/Container';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { ProjectTitleMorph, ProjectImageMorph } from '@/components/projects/ProjectHeaderMorph';
 import { ArrowLeft, Globe, Calendar, Users, Briefcase } from 'lucide-react';
 import { GithubIcon } from '@/components/ui/Icons';
 
@@ -81,9 +82,7 @@ async function ProjectDetailContent({ params }: Props) {
             <span className="text-xs font-mono text-[var(--accent)]">{project.period}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-[var(--fg)] tracking-tight leading-tight">
-            {project.title}
-          </h1>
+          <ProjectTitleMorph slug={slug} title={project.title} />
 
           <p className="mt-4 text-lg sm:text-xl text-[var(--fg-muted)] leading-relaxed">
             {project.summary}
@@ -128,17 +127,8 @@ async function ProjectDetailContent({ params }: Props) {
           </div>
         </header>
 
-        {/* Cover Image */}
-        <div className="mt-10 relative aspect-[16/9] max-h-[500px] w-full rounded-2xl overflow-hidden border border-[var(--border)] shadow-2xl bg-[var(--bg-elevated)]">
-          <Image
-            src={project.coverImage}
-            alt={project.title}
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
+        {/* Cover Image with shared element morph */}
+        <ProjectImageMorph slug={slug} title={project.title} coverImage={project.coverImage} />
 
         {/* Metrics Row */}
         {project.metrics && project.metrics.length > 0 && (

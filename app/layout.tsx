@@ -7,6 +7,7 @@ import { SmoothScrollProvider } from '@/components/providers/SmoothScroll';
 import { Navbar } from '@/components/ui/Navbar';
 import { Footer } from '@/components/ui/Footer';
 import { ScrollRail } from '@/components/motion/ScrollRail';
+import { AuroraBackdrop } from '@/components/three/AuroraBackdrop';
 import { siteConfig, getPersonJsonLd } from '@/lib/seo';
 
 const geistSans = Geist({
@@ -73,6 +74,7 @@ export default function RootLayout({
         </a>
 
         <ThemeProvider>
+          <AuroraBackdrop />
           <SmoothScrollProvider>
             <div className="flex flex-col min-h-screen">
               <Navbar />

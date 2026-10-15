@@ -6,16 +6,10 @@ import * as THREE from 'three';
 
 interface ParticlesProps {
   count?: number;
-  radiusMin?: number;
-  radiusMax?: number;
   speed?: number;
   seed?: number;
 }
 
-/**
- * Seeded Mulberry32 pseudo-random generator.
- * Pure and deterministic, avoiding React 19 react-hooks/purity lint errors.
- */
 function createPrng(seed: number): () => number {
   let s = seed;
   return () => {
@@ -27,92 +21,89 @@ function createPrng(seed: number): () => number {
 }
 
 /**
- * Generates particles buffer data deterministically
+ * Creates a soft radial circular sprite texture for delicate snowflakes
  */
-function generateParticlesData(
-  count: number,
-  radiusMin: number,
-  radiusMax: number,
-  seed: number
-): [Float32Array, Float32Array] {
-  const prng = createPrng(seed);
-  const pos = new Float32Array(count * 3);
-  const col = new Float32Array(count * 3);
+function createSnowTexture(): THREE.Texture | null {
+  if (typeof document === 'undefined') return null;
+  const canvas = document.createElement('canvas');
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return null;
 
-  // Color 1: Electric Ice (#7DF9FF -> Arctic accent)
-  const colorCyan = new THREE.Color('#7DF9FF');
-  // Color 2: Sky Blue (#38BDF8 -> Arctic primary)
-  const colorSky = new THREE.Color('#38BDF8');
-  // Color 3: Glacier White (#EAF4FB -> Arctic fg)
-  const colorWhite = new THREE.Color('#EAF4FB');
+  const gradient = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+  gradient.addColorStop(0, 'rgba(234, 244, 251, 1)');
+  gradient.addColorStop(0.4, 'rgba(125, 249, 255, 0.7)');
+  gradient.addColorStop(1, 'rgba(125, 249, 255, 0)');
 
-  const tempColor = new THREE.Color();
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 32, 32);
 
-  for (let i = 0; i < count; i++) {
-    const i3 = i * 3;
-
-    // Uniform spherical shell distribution using deterministic PRNG
-    const u = prng();
-    const v = prng();
-    const theta = u * 2.0 * Math.PI;
-    const phi = Math.acos(2.0 * v - 1.0);
-    const r = radiusMin + prng() * (radiusMax - radiusMin);
-
-    const sinPhi = Math.sin(phi);
-    pos[i3] = r * sinPhi * Math.cos(theta);
-    pos[i3 + 1] = r * sinPhi * Math.sin(theta);
-    pos[i3 + 2] = r * Math.cos(phi);
-
-    // Interpolate colors based on deterministic PRNG
-    const mixRatio = prng();
-    if (mixRatio < 0.45) {
-      tempColor.copy(colorCyan).lerp(colorWhite, prng() * 0.3);
-    } else if (mixRatio < 0.9) {
-      tempColor.copy(colorSky).lerp(colorWhite, prng() * 0.3);
-    } else {
-      tempColor.copy(colorWhite);
-    }
-
-    col[i3] = tempColor.r;
-    col[i3 + 1] = tempColor.g;
-    col[i3 + 2] = tempColor.b;
-  }
-
-  return [pos, col];
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /**
- * Particles
+ * SnowDrift (Particles)
  *
- * Renders an optimized 3D particle swarm distributed uniformly
- * across a spherical shell (radius 2.5 to 3.5), with custom vertex colors
- * blending purple (#6E56CF) and cyan (#22D3EE).
+ * 600 points gently falling through a tall box, wrapping seamlessly at the bottom,
+ * and drifting horizontally on a sine wave.
  */
 export function Particles({
-  count = 1200,
-  radiusMin = 2.5,
-  radiusMax = 3.5,
-  speed = 0.05,
+  count = 600,
+  speed = 0.6,
   seed = 42,
 }: ParticlesProps): React.JSX.Element {
   const pointsRef = useRef<THREE.Points>(null);
+  const snowTexture = useMemo(() => createSnowTexture(), []);
 
-  // Generate spherical particle positions and two-tone vertex colors deterministically
-  const [positions, colors] = useMemo(() => {
-    return generateParticlesData(count, radiusMin, radiusMax, seed);
-  }, [count, radiusMin, radiusMax, seed]);
+  // Initialize initial positions and individual drift offsets deterministically
+  const [positions, driftOffsets, speeds] = useMemo(() => {
+    const prng = createPrng(seed);
+    const pos = new Float32Array(count * 3);
+    const offsets = new Float32Array(count);
+    const spds = new Float32Array(count);
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      // Tall bounding box: X [-5, 5], Y [-4.5, 4.5], Z [-3.5, 3.5]
+      pos[i3] = (prng() - 0.5) * 10;
+      pos[i3 + 1] = (prng() - 0.5) * 9;
+      pos[i3 + 2] = (prng() - 0.5) * 7;
+
+      offsets[i] = prng() * Math.PI * 2;
+      spds[i] = 0.4 + prng() * 0.6;
+    }
+
+    return [pos, offsets, spds];
+  }, [count, seed]);
 
   useFrame((state, delta) => {
     if (!pointsRef.current) return;
-
-    // Slow ambient rotation around multiple axes
-    pointsRef.current.rotation.y += delta * speed;
-    pointsRef.current.rotation.x += delta * (speed * 0.35);
-
-    // Subtle gentle breathing effect
+    const posAttr = pointsRef.current.geometry.attributes.position;
+    if (!posAttr) return;
+    const array = posAttr.array as Float32Array;
     const time = state.clock.getElapsedTime();
-    const scale = 1 + Math.sin(time * 0.8) * 0.02;
-    pointsRef.current.scale.set(scale, scale, scale);
+
+    for (let i = 0; i < count; i++) {
+      const i3 = i * 3;
+      const spd = speeds[i] ?? 0.5;
+      const offset = driftOffsets[i] ?? 0;
+
+      // Fall vertically
+      array[i3 + 1] = (array[i3 + 1] ?? 0) - spd * speed * delta;
+
+      // Wrap at bottom
+      if ((array[i3 + 1] ?? 0) < -4.5) {
+        array[i3 + 1] = 4.5;
+      }
+
+      // Gentle horizontal sine drift
+      array[i3] = (array[i3] ?? 0) + Math.sin(time * 0.8 + offset) * 0.003;
+    }
+
+    posAttr.needsUpdate = true;
   });
 
   return (
@@ -122,17 +113,13 @@ export function Particles({
           attach="attributes-position"
           args={[positions, 3]}
         />
-        <bufferAttribute
-          attach="attributes-color"
-          args={[colors, 3]}
-        />
       </bufferGeometry>
       <pointsMaterial
-        size={0.035}
-        vertexColors
+        size={0.065}
+        map={snowTexture || undefined}
         transparent
-        opacity={0.8}
-        blending={THREE.AdditiveBlending}
+        opacity={0.7}
+        color="#EAF4FB"
         depthWrite={false}
         sizeAttenuation
       />
