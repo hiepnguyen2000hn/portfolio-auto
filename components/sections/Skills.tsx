@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Container } from '@/components/ui/Container';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import { Card } from '@/components/ui/Card';
@@ -9,6 +10,7 @@ import { Reveal } from '@/components/motion/Reveal';
 import { skills, getSkillsByCategory } from '@/data/skills';
 import { SkillCategory } from '@/types/content';
 import { Code, Server, Cloud, Database, Compass } from 'lucide-react';
+import { dur, ease, stagger } from '@/lib/motion';
 
 const categories: { key: SkillCategory; label: string; icon: React.ElementType }[] = [
   { key: 'Frontend', label: 'Frontend & 3D', icon: Code },
@@ -21,11 +23,12 @@ const categories: { key: SkillCategory; label: string; icon: React.ElementType }
 export function Skills() {
   const [activeCategory, setActiveCategory] = useState<SkillCategory>('Frontend');
   const currentSkills = getSkillsByCategory(activeCategory);
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <section id="skills" className="py-24 relative overflow-hidden bg-[var(--bg-elevated)]/30">
       <Container>
-        <Reveal>
+        <Reveal variant="blurIn">
           <SectionTitle
             index="02"
             eyebrow="SKILLS"
@@ -34,9 +37,13 @@ export function Skills() {
           />
         </Reveal>
 
-        {/* Marquee Ticker */}
-        <div className="mt-8 mb-12 py-3 border-y border-[var(--border)] overflow-hidden relative">
-          <div className="flex gap-8 whitespace-nowrap animate-marquee">
+        {/* Marquee Ticker with pause on hover */}
+        <div className="mt-8 mb-12 py-3 border-y border-[var(--border)] overflow-hidden relative group">
+          <div
+            className={`flex gap-8 whitespace-nowrap ${
+              prefersReducedMotion ? '' : 'animate-marquee group-hover:[animation-play-state:paused]'
+            }`}
+          >
             {[...skills, ...skills].map((skill, idx) => (
               <span
                 key={`${skill.name}-${idx}`}
@@ -49,7 +56,7 @@ export function Skills() {
           </div>
         </div>
 
-        {/* Category Tabs */}
+        {/* Category Tabs with layoutId active pill sliding */}
         <div className="flex flex-wrap gap-2 justify-center mb-10">
           {categories.map((cat) => {
             const Icon = cat.icon;
@@ -58,48 +65,75 @@ export function Skills() {
               <button
                 key={cat.key}
                 onClick={() => setActiveCategory(cat.key)}
-                className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-300 ${
-                  isActive
-                    ? 'bg-[var(--primary)] text-white shadow-lg shadow-[var(--primary)]/25 scale-[1.02]'
-                    : 'bg-[var(--bg-elevated)] text-[var(--fg-muted)] hover:text-[var(--fg)] hover:bg-[var(--glass-bg)] border border-[var(--border)]'
-                }`}
+                className="relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] text-[var(--fg)]"
               >
-                <Icon className="w-4 h-4" />
-                <span>{cat.label}</span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activeSkillTab"
+                    className="absolute inset-0 rounded-xl bg-[var(--primary)] shadow-lg shadow-[var(--primary)]/25 -z-10"
+                    transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  />
+                )}
+                {!isActive && (
+                  <div className="absolute inset-0 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border)] hover:border-[var(--primary)]/40 -z-20 transition-colors" />
+                )}
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[var(--accent)]'}`} />
+                <span className={isActive ? 'text-white font-semibold' : 'text-[var(--fg-muted)]'}>
+                  {cat.label}
+                </span>
               </button>
             );
           })}
         </div>
 
-        {/* Skills Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {currentSkills.map((skill, index) => (
-            <Reveal key={skill.name} variant="fadeUp" delay={index * 0.05}>
-              <Card interactive className="p-5 flex flex-col justify-between h-full">
+        {/* Skills Grid cross-fading with AnimatePresence */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: dur.fast, ease: ease.out }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            {currentSkills.map((skill, index) => (
+              <Card key={skill.name} interactive className="p-5 flex flex-col justify-between h-full">
                 <div className="flex items-center justify-between">
                   <h4 className="font-semibold text-base text-[var(--fg)]">{skill.name}</h4>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs font-mono tabular-nums">
                     Lv.{skill.level}
                   </Badge>
                 </div>
 
-                {/* Level Dots */}
-                <div className="mt-4 flex items-center gap-1.5">
-                  {[1, 2, 3, 4, 5].map((lvl) => (
-                    <div
-                      key={lvl}
-                      className={`h-2 flex-1 rounded-full transition-all duration-500 ${
-                        lvl <= skill.level
-                          ? 'bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]'
-                          : 'bg-[var(--border)]/60'
-                      }`}
-                    />
-                  ))}
+                {/* Level Bars filling from 0 with stagger and shimmer */}
+                <div className="mt-4 flex items-center gap-1.5 overflow-hidden">
+                  {[1, 2, 3, 4, 5].map((lvl) => {
+                    const isFilled = lvl <= skill.level;
+                    return (
+                      <div
+                        key={lvl}
+                        className="relative h-2 flex-1 rounded-full bg-[var(--border)]/60 overflow-hidden"
+                      >
+                        {isFilled && (
+                          <motion.div
+                            initial={prefersReducedMotion ? { scaleX: 1 } : { scaleX: 0 }}
+                            animate={{ scaleX: 1 }}
+                            transition={{
+                              duration: dur.normal,
+                              delay: prefersReducedMotion ? 0 : index * stagger.fast + lvl * 0.04,
+                              ease: ease.out,
+                            }}
+                            className="absolute inset-0 origin-left bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] rounded-full"
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </Card>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </Container>
     </section>
   );

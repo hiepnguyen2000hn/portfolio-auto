@@ -3,20 +3,22 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Container } from '@/components/ui/Container';
 import { SectionTitle } from '@/components/ui/SectionTitle';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Reveal } from '@/components/motion/Reveal';
-import { profile } from '@/data/profile';
 import { ContactSchema, ContactInput } from '@/lib/schemas/contact';
-import { Mail, Check, Copy, Clock, MapPin, Send, AlertCircle } from 'lucide-react';
+import { profile } from '@/data/profile';
+import { Mail, MapPin, Send, Check, Copy, Clock, AlertCircle, Snowflake } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from '@/components/ui/Icons';
+import { dur, ease } from '@/lib/motion';
 
 export function Contact() {
   const [copied, setCopied] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   const {
     register,
@@ -25,42 +27,32 @@ export function Contact() {
     formState: { errors },
   } = useForm<ContactInput>({
     resolver: zodResolver(ContactSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      message: '',
-      website: '',
-    },
   });
 
-  const handleCopyEmail = async () => {
-    try {
-      await navigator.clipboard.writeText(profile.email);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch {
-      // Fallback
-    }
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(profile.email);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const onSubmit = async (data: ContactInput) => {
-    setSubmitStatus('loading');
+    setSubmitStatus('sending');
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/contact', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
-      const result = await res.json();
+      const result = await response.json();
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error(result.error || 'Có lỗi xảy ra khi gửi tin nhắn');
       }
 
-      setSubmitStatus('success');
+      setSubmitStatus('sent');
       reset();
     } catch (err: unknown) {
       setSubmitStatus('error');
@@ -71,7 +63,7 @@ export function Contact() {
   return (
     <section id="contact" className="py-24 relative overflow-hidden bg-[var(--bg-elevated)]/30">
       <Container>
-        <Reveal>
+        <Reveal variant="blurIn">
           <SectionTitle
             index="06"
             eyebrow="CONTACT"
@@ -111,8 +103,8 @@ export function Contact() {
                   >
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4 text-emerald-500" />
-                        <span className="text-xs text-emerald-500 font-medium">Đã copy</span>
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        <span className="text-xs text-emerald-400 font-medium">Đã copy</span>
                       </>
                     ) : (
                       <>
@@ -161,114 +153,170 @@ export function Contact() {
           {/* Cột phải: Contact Form */}
           <div className="lg:col-span-7">
             <Reveal variant="fadeUp" delay={0.15}>
-              <Card className="p-6 sm:p-8">
-                {submitStatus === 'success' ? (
-                  <div className="py-12 text-center space-y-4">
-                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-500 mx-auto flex items-center justify-center border border-emerald-500/20">
-                      <Check className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-[var(--fg)]">Tin nhắn đã được gửi!</h3>
-                    <p className="text-sm text-[var(--fg-muted)] max-w-md mx-auto">
-                      Cảm ơn bạn đã liên hệ. Tôi sẽ phản hồi qua email của bạn trong thời gian sớm nhất.
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSubmitStatus('idle')}
-                      className="mt-4"
+              <Card className="p-6 sm:p-8 relative overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {submitStatus === 'sent' ? (
+                    <motion.div
+                      key="sent"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: dur.normal, ease: ease.out }}
+                      className="py-12 text-center space-y-4 relative"
                     >
-                      Gửi tin nhắn khác
-                    </Button>
-                  </div>
-                ) : (
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-                    {/* Honeypot hidden input */}
-                    <input
-                      type="text"
-                      tabIndex={-1}
-                      autoComplete="off"
-                      className="hidden"
-                      aria-hidden="true"
-                      {...register('website')}
-                    />
-
-                    {submitStatus === 'error' && (
-                      <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-sm flex items-center gap-3">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
-                        <span>{errorMessage}</span>
+                      {/* Snowflake burst particles */}
+                      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+                        {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
+                          <motion.div
+                            key={angle}
+                            initial={{ scale: 0, x: 0, y: 0, opacity: 1 }}
+                            animate={{
+                              scale: [0, 1.2, 0.8],
+                              x: Math.cos((angle * Math.PI) / 180) * 110,
+                              y: Math.sin((angle * Math.PI) / 180) * 110,
+                              opacity: [1, 0.8, 0],
+                            }}
+                            transition={{ duration: 1.2, delay: i * 0.04, ease: 'easeOut' }}
+                            className="absolute text-[var(--accent)]"
+                          >
+                            <Snowflake className="w-4 h-4" />
+                          </motion.div>
+                        ))}
                       </div>
-                    )}
 
-                    <div>
-                      <label htmlFor="name" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
-                        Tên của bạn *
-                      </label>
+                      <div className="w-16 h-16 rounded-full bg-emerald-500/10 text-emerald-400 mx-auto flex items-center justify-center border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.25)]">
+                        <Check className="w-8 h-8" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-[var(--fg)]">Tin nhắn đã được gửi!</h3>
+                      <p className="text-sm text-[var(--fg-muted)] max-w-md mx-auto">
+                        Cảm ơn bạn đã liên hệ. Tôi sẽ phản hồi qua email của bạn trong thời gian sớm nhất.
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => setSubmitStatus('idle')}
+                        className="mt-4"
+                      >
+                        Gửi tin nhắn khác
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                      {/* Honeypot hidden input */}
                       <input
-                        id="name"
                         type="text"
-                        placeholder="Nguyễn Văn A"
-                        className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all ${
-                          errors.name ? 'border-rose-500' : 'border-[var(--border)]'
-                        }`}
-                        {...register('name')}
+                        tabIndex={-1}
+                        autoComplete="off"
+                        className="hidden"
+                        aria-hidden="true"
+                        {...register('website')}
                       />
-                      {errors.name && (
-                        <p className="mt-1 text-xs text-rose-500">{errors.name.message}</p>
-                      )}
-                    </div>
 
-                    <div>
-                      <label htmlFor="email" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
-                        Địa chỉ Email *
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="you@company.com"
-                        className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all ${
-                          errors.email ? 'border-rose-500' : 'border-[var(--border)]'
-                        }`}
-                        {...register('email')}
-                      />
-                      {errors.email && (
-                        <p className="mt-1 text-xs text-rose-500">{errors.email.message}</p>
+                      {submitStatus === 'error' && (
+                        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-sm flex items-center gap-3">
+                          <AlertCircle className="w-5 h-5 shrink-0" />
+                          <span>{errorMessage}</span>
+                        </div>
                       )}
-                    </div>
 
-                    <div>
-                      <label htmlFor="message" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
-                        Nội dung tin nhắn *
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={5}
-                        placeholder="Chia sẻ về dự án, vai trò hoặc ý tưởng bạn muốn trao đổi..."
-                        className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:ring-2 focus:ring-[var(--primary)] transition-all ${
-                          errors.message ? 'border-rose-500' : 'border-[var(--border)]'
-                        }`}
-                        {...register('message')}
-                      />
-                      {errors.message && (
-                        <p className="mt-1 text-xs text-rose-500">{errors.message.message}</p>
-                      )}
-                    </div>
+                      {/* Animated Frost Border Input: Name */}
+                      <div>
+                        <label htmlFor="name" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
+                          Tên của bạn *
+                        </label>
+                        <div className="relative group">
+                          <input
+                            id="name"
+                            type="text"
+                            placeholder="Nguyễn Văn A"
+                            className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_12px_var(--glow)] transition-all ${
+                              errors.name ? 'border-rose-500' : 'border-[var(--border)]'
+                            }`}
+                            {...register('name')}
+                          />
+                        </div>
+                        {errors.name && (
+                          <p className="mt-1 text-xs text-rose-500">{errors.name.message}</p>
+                        )}
+                      </div>
 
-                    <Button
-                      type="submit"
-                      variant="primary"
-                      className="w-full gap-2 py-3"
-                      disabled={submitStatus === 'loading'}
-                    >
-                      {submitStatus === 'loading' ? (
-                        <span>Đang gửi tin nhắn...</span>
-                      ) : (
-                        <>
-                          <span>Gửi tin nhắn</span>
-                          <Send className="w-4 h-4" />
-                        </>
-                      )}
-                    </Button>
-                  </form>
-                )}
+                      {/* Animated Frost Border Input: Email */}
+                      <div>
+                        <label htmlFor="email" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
+                          Địa chỉ Email *
+                        </label>
+                        <div className="relative group">
+                          <input
+                            id="email"
+                            type="email"
+                            placeholder="you@company.com"
+                            className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_12px_var(--glow)] transition-all ${
+                              errors.email ? 'border-rose-500' : 'border-[var(--border)]'
+                            }`}
+                            {...register('email')}
+                          />
+                        </div>
+                        {errors.email && (
+                          <p className="mt-1 text-xs text-rose-500">{errors.email.message}</p>
+                        )}
+                      </div>
+
+                      {/* Animated Frost Border Input: Message */}
+                      <div>
+                        <label htmlFor="message" className="block text-xs font-mono uppercase text-[var(--fg)] mb-2">
+                          Nội dung tin nhắn *
+                        </label>
+                        <div className="relative group">
+                          <textarea
+                            id="message"
+                            rows={5}
+                            placeholder="Chia sẻ về dự án, vai trò hoặc ý tưởng bạn muốn trao đổi..."
+                            className={`w-full px-4 py-3 rounded-xl bg-[var(--bg)] border text-sm text-[var(--fg)] placeholder-[var(--fg-muted)]/50 focus:outline-none focus:border-[var(--accent)] focus:shadow-[0_0_12px_var(--glow)] transition-all ${
+                              errors.message ? 'border-rose-500' : 'border-[var(--border)]'
+                            }`}
+                            {...register('message')}
+                          />
+                        </div>
+                        {errors.message && (
+                          <p className="mt-1 text-xs text-rose-500">{errors.message.message}</p>
+                        )}
+                      </div>
+
+                      {/* Submit button running idle -> sending -> sent with AnimatePresence */}
+                      <Button
+                        type="submit"
+                        variant="primary"
+                        className="w-full gap-2 py-3 relative overflow-hidden"
+                        disabled={submitStatus === 'sending'}
+                      >
+                        <AnimatePresence mode="wait">
+                          {submitStatus === 'sending' ? (
+                            <motion.span
+                              key="sending"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="flex items-center gap-2"
+                            >
+                              <Snowflake className="w-4 h-4 animate-spin text-[var(--accent)]" />
+                              <span>Đang gửi tin nhắn...</span>
+                            </motion.span>
+                          ) : (
+                            <motion.span
+                              key="idle"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -10 }}
+                              className="flex items-center justify-center gap-2"
+                            >
+                              <span>Gửi tin nhắn</span>
+                              <Send className="w-4 h-4" />
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </Button>
+                    </form>
+                  )}
+                </AnimatePresence>
               </Card>
             </Reveal>
           </div>
